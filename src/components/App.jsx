@@ -7,7 +7,7 @@ import { Box } from './Box';
 
 export function App() {
   const [contacts, setContacts] = useState(
-    JSON.parse(window.localStorage.getItem('contact')) ?? '',
+    () => JSON.parse(window.localStorage.getItem('contacts')) ?? []
   );
   const [filter, setFilter] = useState('');
 
@@ -17,22 +17,22 @@ export function App() {
 
   
 
-  const onSubmit = data => {
+  const handleSubmit = data => {
     let findName = contacts.find(item => item.name === data.name);
 
     if (findName) {
       return alert(`${data.name} is already in contact`);
     } else {
-      setContacts(contacts => [...contacts, data]);
+      setContacts(contact => [...contact, data]);
     }
   };
 
-  const onFilter = e => {
+  const handleFilter = e => {
    setFilter(e.target.value);
   };
 
   const handleClickDeleteBtn = id => {
-    setContacts(prevState => prevState.contacts.filter(contact => contact.id !== id),
+    setContacts(prevState => prevState.filter(contact => contact.id !== id),
     );
   };
 
@@ -44,24 +44,6 @@ export function App() {
     );
   };
 
-  // componentDidMount() {
-  //   const contacts = localStorage.getItem('contacts');
-  //   const parsedContacts = JSON.parse(contacts);
-
-  //   if (parsedContacts) {
-  //     this.setState({ contacts: parsedContacts });
-  //   }
-  // }
-
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.state.contacts !== prevState.contacts) {
-
-  //     localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
-  //   }
-  // }
-
-  // render() {
-  //   const { filter } = this.state;
   let visibleContacts = [];
   visibleContacts = getVisibleContacts();
 
@@ -75,18 +57,20 @@ export function App() {
        background="lightyellow"
      width="50%">
         <Section title="Phonebook">
-          <ContactForm onSubmit={onSubmit} />
+          <ContactForm onSubmit={handleSubmit} />
           </Section>
-  
-        <Section title="Contacts">
-          <Filter value={filter} onChange={onFilter} />
-          
 
-        <ContactList
-          contacts={visibleContacts}
-            onDeleteClick={handleClickDeleteBtn} />
-          </Section>
+        <Section title="Contacts">
+          <Filter value={filter} onChange={handleFilter} />
+          
+          <ContactList
+            contacts={visibleContacts}
+          onDeleteClick={handleClickDeleteBtn} 
+          />
+
+        </Section>
       </Box>
+
     );
- };
-// }
+
+};
