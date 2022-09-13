@@ -1,66 +1,69 @@
-import React, { Component } from 'react';
-// import { nanoid } from 'nanoid';
+import { useState, useEffect } from 'react';
 import { ContactForm } from './ContactForm/ContactForm';
 import { ContactList } from './ContactList/ContactList';
 import { Filter } from './Filter/Filter';
 import { Section } from './Section/Section';
 import { Box } from './Box';
 
-export class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-  };
+export function App() {
+  const [contacts, setContacts] = useState(
+    JSON.parse(window.localStorage.getItem('contact')) ?? '',
+  );
+  const [filter, setFilter] = useState('');
 
-  onSubmit = data => {
-    let findName = this.state.contacts.find(item => item.name === data.name);
+  useEffect(() => {
+    window.localStorage.setItem('contacts', JSON.stringify(contacts))
+  }, [contacts]);
+
+  
+
+  const onSubmit = data => {
+    let findName = contacts.find(item => item.name === data.name);
 
     if (findName) {
       return alert(`${data.name} is already in contact`);
     } else {
-      this.setState(({ contacts }) => ({
-        contacts: [...contacts, data],
-      }));
+      setContacts(contacts => [...contacts, data]);
     }
   };
 
-  onFilter = e => {
-    this.setState({ filter: e.target.value });
+  const onFilter = e => {
+   setFilter(e.target.value);
   };
 
-  handleClickDeleteBtn = id => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.id !== id),
-    }));
-  };
-
-  getVisibleContacts = () => {
-    const { contacts, filter } = this.state;
-    const filterTolowerCase = filter.toLowerCase();
-
-    return contacts.filter(contact => contact.name.toLowerCase().includes(filterTolowerCase)
+  const handleClickDeleteBtn = id => {
+    setContacts(prevState => prevState.contacts.filter(contact => contact.id !== id),
     );
   };
 
-  componentDidMount() {
-    const contacts = localStorage.getItem('contacts');
-    const parsedContacts = JSON.parse(contacts);
+  const getVisibleContacts = () => {
+    const filterTolowerCase = filter.toLowerCase();
 
-    if (parsedContacts) {
-      this.setState({ contacts: parsedContacts });
-    }
-  }
+    return contacts.filter(contact =>
+      contact.name.toLowerCase().includes(filterTolowerCase)
+    );
+  };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.contacts !== prevState.contacts) {
+  // componentDidMount() {
+  //   const contacts = localStorage.getItem('contacts');
+  //   const parsedContacts = JSON.parse(contacts);
 
-      localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
-    }
-  }
+  //   if (parsedContacts) {
+  //     this.setState({ contacts: parsedContacts });
+  //   }
+  // }
 
-  render() {
-    const { filter } = this.state;
-    const visibleContacts = this.getVisibleContacts();
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.state.contacts !== prevState.contacts) {
+
+  //     localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
+  //   }
+  // }
+
+  // render() {
+  //   const { filter } = this.state;
+  let visibleContacts = [];
+  visibleContacts = getVisibleContacts();
 
     return (
       <Box
@@ -72,18 +75,18 @@ export class App extends Component {
        background="lightyellow"
      width="50%">
         <Section title="Phonebook">
-          <ContactForm onSubmit={this.onSubmit} />
+          <ContactForm onSubmit={onSubmit} />
           </Section>
   
         <Section title="Contacts">
-          <Filter value={filter} onChange={this.onFilter} />
+          <Filter value={filter} onChange={onFilter} />
           
 
         <ContactList
           contacts={visibleContacts}
-            onDeleteClick={this.handleClickDeleteBtn} />
+            onDeleteClick={handleClickDeleteBtn} />
           </Section>
       </Box>
     );
-  }
-}
+ };
+// }
